@@ -39,7 +39,7 @@ class Chatroom(models.Model):
     #In order to do this, provide safe functions that hand the incrementing/decrementing operations to the database, avoiding potential
     #race conditions.
     def safely_increment_count(self):
-        Chatroom.objects.filter(id=self.pk).update(num_connection=F('num_connections') + 1)
+        Chatroom.objects.filter(id=self.pk).update(num_connections=F('num_connections') + 1)
 
     def safely_decrement_count(self):
-        Chatroom.objects.filter(id=self.pk).update(num_connection=F('num_connections') - 1)
+        Chatroom.objects.filter(id=self.pk).update(num_connections=F('num_connections') - 1)

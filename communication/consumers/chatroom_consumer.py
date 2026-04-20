@@ -75,11 +75,13 @@ class ChatroomConsumer(AsyncJsonWebsocketConsumer):
    #since most of the disconnect procedure will be the same when the client gets disconnected or closes the connection
    #Most of the disconnect procedure can be abstracted into a method that gets called both event handlers
     async def disconnect_procedure(self) -> None:
-        if self.room_name:
+        if self.room_name and self.room is not None:
             await self.channel_layer.group_discard(group=self.room_name, channel=self.channel_name)
+            await database_sync_to_async(lambda: self.room.safely_decrement_count())()
 
 
     async def send_authorize_request(self) -> None:
+        await database_sync_to_async(lambda: self.room.safely_increment_count())()
         await self.send_json({
             "msg_type": MessageTypes.AUTHORIZATION_REQUEST.value
         })
