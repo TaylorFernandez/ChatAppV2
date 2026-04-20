@@ -8,6 +8,8 @@ django = "*"
 channels = {extras = ["daphne"], version = "*"}
 daphne = "*"
 django-rest-framework = "*"
+psycopg = {extras = ["binary"], version = "*"}
+python-dotenv = "*"
 
 [dev-packages]
 
