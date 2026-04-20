@@ -1,0 +1,10 @@
+.disconnected{
+    border: 1px transparent;
+    border-radius: 10px;
+    background-color: red;
+}
+.connected{ 
+    border: 1px transparent;
+    border-radius: 10px;
+    background-color: green;
+}

@@ -1,0 +1,81 @@
+{% extends "shared/base.html" %}
+{% block content %}
+
+<div class="d-flex flex-column h-100">
+    <div class="border-bottom px-3 py-2 d-flex align-items-center justify-content-between bg-light">
+        <h5 class="mb-0">Global Chat</h5>
+        <span id="status" class="badge bg-danger">Disconnected</span>
+    </div>
+
+    <div id="chat-messages" class="flex-grow-1 overflow-auto p-3">
+    </div>
+
+    <div class="border-top p-3">
+        <div class="input-group">
+            <input type="text" id="message_field" class="form-control" placeholder="Type a message...">
+            <button id="send" class="btn btn-primary">
+                <i class="bi bi-send-fill"></i> Send
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    var socket = new WebSocket('ws://localhost:8000/chat/');
+    var send = document.getElementById("send");
+    var messageField = document.getElementById("message_field");
+    var chatMessages = document.getElementById("chat-messages");
+
+    function appendMessage(text, align) {
+        var wrapper = document.createElement("div");
+        wrapper.className = "d-flex mb-2 " + (align === "end" ? "justify-content-end" : "justify-content-start");
+
+        var bubble = document.createElement("div");
+        bubble.className = "px-3 py-2 rounded-3 " + (align === "end" ? "bg-primary text-white" : "bg-light border");
+        bubble.style.maxWidth = "75%";
+        bubble.textContent = text;
+
+        wrapper.appendChild(bubble);
+        chatMessages.appendChild(wrapper);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    socket.addEventListener("open", (event) => {
+        var statusSpan = document.getElementById("status");
+        statusSpan.className = "badge bg-success";
+        statusSpan.textContent = "Connected";
+    });
+
+    socket.addEventListener("message", (event) => {
+        let obj = JSON.parse(event.data);
+        appendMessage(obj.message, "start");
+    });
+
+    socket.addEventListener("close", (event) => {
+        var statusSpan = document.getElementById("status");
+        statusSpan.className = "badge bg-danger";
+        statusSpan.textContent = "Disconnected";
+    });
+
+    socket.addEventListener("error", (event) => {
+        var statusSpan = document.getElementById("status");
+        statusSpan.className = "badge bg-danger";
+        statusSpan.textContent = "Disconnected";
+    });
+
+    send.addEventListener("click", (event) => {
+        var message = messageField.value.trim();
+        if (!message) return;
+        messageField.value = "";
+        socket.send(JSON.stringify({ message: message }));
+        appendMessage(message, "end");
+    });
+
+    messageField.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            send.click();
+        }
+    });
+</script>
+
+{% endblock %}
